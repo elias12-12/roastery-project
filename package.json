@@ -1,0 +1,27 @@
+{
+  
+  "name": "roastery-management-system",
+  "version": "1.0.0",
+  "description": "Roastery Management System - Full Stack Application",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node --no-deprecation src/server.js",
+    "dev": "nodemon --exec \"node --no-deprecation\" src/server.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "connect-flash": "^0.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.17.3",
+    "express-validator": "^7.3.1",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
