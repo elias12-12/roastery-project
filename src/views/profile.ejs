@@ -1,0 +1,43 @@
+<h1 class="mb-4"><i class="bi bi-person-circle"></i> My Profile</h1>
+
+<div class="row">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Profile Information</h5>
+      </div>
+      <div class="card-body">
+        <table class="table">
+          <tr>
+            <th>User ID:</th>
+            <td><%= user.user_id %></td>
+          </tr>
+          <tr>
+            <th>First Name:</th>
+            <td><%= user.first_name %></td>
+          </tr>
+          <tr>
+            <th>Last Name:</th>
+            <td><%= user.last_name %></td>
+          </tr>
+          <tr>
+            <th>Email:</th>
+            <td><%= user.email %></td>
+          </tr>
+          <tr>
+            <th>Phone:</th>
+            <td><%= user.phone_number %></td>
+          </tr>
+          <tr>
+            <th>Role:</th>
+            <td>
+              <span class="badge bg-<%= user.role === 'admin' ? 'danger' : user.role === 'customer' ? 'primary' : 'secondary' %> badge-role">
+                <%= user.role %>
+              </span>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

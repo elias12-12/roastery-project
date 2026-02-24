@@ -1,0 +1,147 @@
+<div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-2">
+  <h1 class="mb-0"><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
+  <div class="d-flex align-items-center gap-2">
+    <div class="card shadow-sm border-0" style="min-width: 260px;">
+      <div class="card-body py-2 px-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-cloud-sun text-primary fs-4 me-2"></i>
+            <div>
+              <p class="mb-0 fw-semibold">Weather</p>
+              <small class="text-muted"><%= weather ? (weather.city + (weather.country ? ', ' + weather.country : '')) : weatherCity %></small>
+            </div>
+          </div>
+          <form class="d-flex" method="get" action="/admin/dashboard" role="search">
+            <input class="form-control form-control-sm" style="width: 130px;" type="search" name="city" placeholder="City" value="<%= weatherCity %>" />
+            <button class="btn btn-sm btn-outline-primary ms-2" type="submit" title="Refresh"><i class="bi bi-arrow-repeat"></i></button>
+          </form>
+        </div>
+        <div class="mt-2">
+          <% if (weatherError) { %>
+            <p class="text-warning small mb-0"><i class="bi bi-exclamation-triangle"></i> <%= weatherError %></p>
+          <% } else if (weather) { %>
+            <div class="d-flex align-items-center">
+              <% if (weather.icon) { %>
+                <img src="https://openweathermap.org/img/wn/<%= weather.icon %>@2x.png" alt="Weather icon" width="42" height="42" />
+              <% } %>
+              <div class="ms-2">
+                <span class="fw-semibold"><%= weather.temperature %>&deg;C</span>
+                <small class="text-muted ms-1">Feels <%= weather.feelsLike %>&deg;C</small><br>
+                <small class="text-muted text-capitalize"><%= weather.description %></small>
+              </div>
+            </div>
+          <% } else { %>
+            <p class="text-muted small mb-0">Weather data loading...</p>
+          <% } %>
+          <div class="mt-1">
+            <a href="/weather?city=<%= encodeURIComponent(weatherCity) %>" class="small">Details</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+  <div class="col-md-3 mb-3">
+    <div class="card stats-card">
+      <div class="card-body">
+        <h5 class="card-title text-muted">Total Revenue</h5>
+        <h2 class="text-success">$<%= stats.totalRevenue.toFixed(2) %></h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 mb-3">
+    <div class="card stats-card">
+      <div class="card-body">
+        <h5 class="card-title text-muted">Total Sales</h5>
+        <h2 class="text-primary"><%= stats.totalSales %></h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 mb-3">
+    <div class="card stats-card">
+      <div class="card-body">
+        <h5 class="card-title text-muted">Products</h5>
+        <h2 class="text-info"><%= stats.totalProducts %></h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 mb-3">
+    <div class="card stats-card">
+      <div class="card-body">
+        <h5 class="card-title text-muted">Low Stock</h5>
+        <h2 class="text-warning"><%= stats.lowStockCount %></h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Recent Sales -->
+  <div class="col-lg-8 mb-4">
+    <div class="card">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-receipt"></i> Recent Sales</h5>
+      </div>
+      <div class="card-body">
+        <% if (recentSales.length === 0) { %>
+          <p class="text-muted">No sales yet</p>
+        <% } else { %>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Sale ID</th>
+                  <th>Date</th>
+                  <th>Total</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% recentSales.forEach(sale => { %>
+                  <tr>
+                    <td>#<%= sale.sale_id %></td>
+                    <td><%= sale.sale_date %></td>
+                    <td>$<%= parseFloat(sale.total_amount || 0).toFixed(2) %></td>
+                    <td>
+                      <a href="/sales/<%= sale.sale_id %>" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye"></i> View
+                      </a>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+        <a href="/admin/sales" class="btn btn-primary">View All Orders</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Low Stock Alerts -->
+  <div class="col-lg-4 mb-4">
+    <div class="card">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Low Stock Alerts</h5>
+      </div>
+      <div class="card-body">
+        <% if (lowStock.length === 0) { %>
+          <p class="text-success">All products are well stocked!</p>
+        <% } else { %>
+          <ul class="list-group">
+            <% lowStock.forEach(item => { %>
+              <li class="list-group-item">
+                <strong><%= item.product_name %></strong><br>
+                <small class="text-danger">Stock: <%= item.quantity_in_stock %></small>
+              </li>
+            <% }) %>
+          </ul>
+          <a href="/admin/inventory/low-stock" class="btn btn-warning btn-sm mt-2">View All</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

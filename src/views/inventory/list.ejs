@@ -1,0 +1,54 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1><i class="bi bi-stack"></i> Inventory Management</h1>
+  <a href="/admin/inventory/low-stock" class="btn btn-warning">
+    <i class="bi bi-exclamation-triangle"></i> Low Stock Alerts
+  </a>
+</div>
+
+<% if (inventory.length === 0) { %>
+  <div class="alert alert-info">
+    No inventory records found.
+  </div>
+<% } else { %>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>Inventory ID</th>
+          <th>Product</th>
+          <th>Quantity in Stock</th>
+          <th>Last Updated</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% inventory.forEach(item => { %>
+          <tr class="<%= item.quantity_in_stock < 10 ? 'low-stock-row' : '' %>">
+            <td><%= item.inventory_id %></td>
+            <td>
+              <strong><%= item.product_name || `Product #${item.product_id}` %></strong>
+              <br><small class="text-muted">ID: <%= item.product_id %></small>
+            </td>
+            <td>
+              <strong class="<%= item.quantity_in_stock < 10 ? 'text-danger' : '' %>">
+                <%= item.quantity_in_stock %>
+              </strong>
+            </td>
+            <td><%= item.last_updated ? new Date(item.last_updated).toLocaleString() : 'N/A' %></td>
+            <td>
+              <form action="/admin/inventory/update/<%= item.product_id %>" method="POST" class="d-inline">
+                <div class="input-group input-group-sm">
+                  <input type="number" class="form-control" name="quantity_in_stock" 
+                         value="<%= item.quantity_in_stock %>" min="0" style="width: 80px;" required>
+                  <button type="submit" class="btn btn-outline-primary">
+                    <i class="bi bi-check"></i> Update
+                  </button>
+                </div>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

@@ -1,0 +1,90 @@
+<h1 class="mb-4"><i class="bi bi-receipt"></i> All Orders</h1>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <form class="row g-3 align-items-end" method="get" action="/admin/sales">
+      <div class="col-md-3">
+        <label for="startDate" class="form-label">Start date</label>
+        <input type="date" id="startDate" name="startDate" class="form-control" value="<%= filters?.startDate || '' %>">
+      </div>
+      <div class="col-md-3">
+        <label for="endDate" class="form-label">End date</label>
+        <input type="date" id="endDate" name="endDate" class="form-control" value="<%= filters?.endDate || '' %>">
+      </div>
+      <div class="col-md-2">
+        <label for="userId" class="form-label">User ID</label>
+        <input type="number" min="1" id="userId" name="userId" class="form-control" placeholder="e.g. 12" value="<%= filters?.userId || '' %>">
+      </div>
+      <div class="col-md-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-funnel"></i> Apply filters
+        </button>
+        <a href="/admin/sales" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-counterclockwise"></i> Reset
+        </a>
+      </div>
+    </form>
+
+    <% if (filters && (filters.startDate || filters.endDate || filters.userId)) { %>
+      <p class="text-muted small mb-0 mt-2">
+        Showing
+        <% if (filters.startDate && filters.endDate) { %>
+          orders between <strong><%= filters.startDate %></strong> and <strong><%= filters.endDate %></strong>
+        <% } %>
+        <% if (filters.userId) { %>
+          for user ID <strong><%= filters.userId %></strong>
+        <% } %>
+      </p>
+    <% } %>
+  </div>
+</div>
+
+<% if (sales.length === 0) { %>
+  <div class="alert alert-info">
+    No orders found for the selected filters.
+  </div>
+<% } else { %>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>Order ID</th>
+          <th>Date</th>
+          <th>User ID</th>
+          <th>Subtotal</th>
+          <th>Discount</th>
+          <th>Total</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% sales.forEach(sale => { %>
+          <tr>
+            <td>#<%= sale.sale_id %></td>
+            <td><%= sale.sale_date %></td>
+            <td><%= sale.user_id %></td>
+            <td>$<%= parseFloat(sale.subtotal || 0).toFixed(2) %></td>
+            <td>$<%= parseFloat(sale.discount_amount || 0).toFixed(2) %></td>
+            <td><strong>$<%= parseFloat(sale.total_amount || 0).toFixed(2) %></strong></td>
+            <td>
+              <a href="/sales/<%= sale.sale_id %>" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-eye"></i> View
+              </a>
+              <% if (currentUser && currentUser.role === 'admin') { %>
+                <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#discountModal<%= sale.sale_id %>">
+                  <i class="bi bi-tag"></i> Discount
+                </button>
+              <% } %>
+            </td>
+          </tr>
+          
+          <!-- Discount Modal for Order -->
+          <% if (currentUser && currentUser.role === 'admin') { %>
+            <%- include('../partials/_discount-form', { sale: sale, modalId: 'discountModal' + sale.sale_id }) %>
+          <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

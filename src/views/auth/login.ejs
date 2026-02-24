@@ -1,0 +1,21 @@
+<h3 class="mb-4">Login</h3>
+<form action="/login" method="POST">
+  <div class="mb-3">
+    <label for="email" class="form-label">Email</label>
+    <input type="email" class="form-control" id="email" name="email" required>
+  </div>
+  <div class="mb-3">
+    <label for="password" class="form-label">Password</label>
+    <input type="password" class="form-control" id="password" name="password" required>
+  </div>
+  <button type="submit" class="btn btn-primary w-100 mb-3">
+    <i class="bi bi-box-arrow-in-right"></i> Login
+  </button>
+  <div class="text-center">
+    <small class="text-muted">Don't have an account? <a href="/register">Register here</a></small>
+  </div>
+  <div class="text-center">
+    <small class="text-muted">Are you a guest? <a href="/guest-login">Login as guest</a></small>
+  </div>
+
+</form>

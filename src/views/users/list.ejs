@@ -1,0 +1,36 @@
+<h1 class="mb-4"><i class="bi bi-people"></i> User Management</h1>
+
+<% if (users.length === 0) { %>
+  <div class="alert alert-info">
+    No users found.
+  </div>
+<% } else { %>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>User ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach(user => { %>
+          <tr>
+            <td><%= user.user_id %></td>
+            <td><strong><%= user.first_name %> <%= user.last_name %></strong></td>
+            <td><%= user.email %></td>
+            <td><%= user.phone_number %></td>
+            <td>
+              <span class="badge bg-<%= user.role === 'admin' ? 'danger' : user.role === 'customer' ? 'primary' : 'secondary' %> badge-role">
+                <%= user.role %>
+              </span>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

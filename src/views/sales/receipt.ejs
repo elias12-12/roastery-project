@@ -1,0 +1,78 @@
+<h1 class="mb-4"><i class="bi bi-receipt-cutoff"></i> Order Receipt #<%= sale.sale_id %></h1>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Order Details</h5>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>Order ID:</strong> #<%= sale.sale_id %><br>
+            <strong>Date:</strong> <%= sale.sale_date %>
+          </div>
+          <div class="col-md-6">
+            <strong>Status:</strong> <span class="badge bg-success">Completed</span>
+          </div>
+        </div>
+
+        <hr>
+
+        <h5 class="mb-3">Items</h5>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% items.forEach(item => { %>
+                <tr>
+                  <td>Product #<%= item.product_id %></td>
+                  <td><%= item.quantity %></td>
+                  <td>$<%= parseFloat(item.price_at_sale || 0).toFixed(2) %></td>
+                  <td>$<%= (parseFloat(item.price_at_sale || 0) * parseInt(item.quantity || 0)).toFixed(2) %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <hr>
+
+        <div class="text-end">
+          <div class="mb-2">
+            <strong>Subtotal:</strong> $<%= parseFloat(sale.subtotal || 0).toFixed(2) %>
+          </div>
+          <div class="mb-2">
+            <strong>Discount:</strong> $<%= parseFloat(sale.discount_amount || 0).toFixed(2) %>
+          </div>
+          <div class="h4 text-success">
+            <strong>Total:</strong> $<%= parseFloat(sale.total_amount || 0).toFixed(2) %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <a href="<%= currentUser.role === 'admin' ? '/admin/sales' : '/sales/my-orders' %>" class="btn btn-secondary">
+    <i class="bi bi-arrow-left"></i> Back to Orders
+  </a>
+  <% if (currentUser && currentUser.role === 'admin') { %>
+    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#discountModal">
+      <i class="bi bi-tag"></i> Apply Discount
+    </button>
+  <% } %>
+</div>
+
+<!-- Discount Modal -->
+<% if (currentUser && currentUser.role === 'admin') { %>
+  <%- include('../partials/_discount-form', { sale: sale, modalId: 'discountModal' }) %>
+<% } %>
