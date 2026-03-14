@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'node:path';
+import OpenAI from 'openai';
 import { fileURLToPath } from 'node:url';
 import expressLayouts from 'express-ejs-layouts';
 import session from 'express-session';
@@ -13,6 +14,8 @@ import { ProductsRoutes } from './routes/productsRoutes.js';
 import { SalesRoutes } from './routes/SalesRoutes.js';
 import { SaleItemsRoutes } from './routes/SaleItemsRoutes.js';
 import { InventoryRoutes } from './routes/InventoryRoutes.js';
+import chatbotRoute from './routes/chatbot.js';
+
 
 // NEW: Pages routes
 import { pagesRouter } from './routes/pages.routes.js';
@@ -77,6 +80,7 @@ app.use('/api/products', ProductsRoutes);
 app.use('/api/sales', SalesRoutes);
 app.use('/api/sale-items', SaleItemsRoutes);
 app.use('/api/inventory', InventoryRoutes);
+app.use('/api/chatbot', chatbotRoute);
 
 // ===== FRONTEND PAGES (new) =====
 app.use('/', pagesRouter);

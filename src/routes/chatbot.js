@@ -4,20 +4,21 @@ import OpenAI from 'openai';
 const router = express.Router();
 
 const openai = new OpenAI({ 
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1"
 });
 router.post("/", async (req, res) => {
     const { message } = req.body;
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
+            model: "llama-3.3-70b-versatile",
             messages: [
-                { role: "system", content: "You are a helpful assistant for a coffee roastery management system. Answer questions about inventory, roasting schedules, and general coffee knowledge." },
                 { role: "user", content: message }
             ]
         });
         res.json({ reply: response.choices[0].message.content });
     } catch (error) {
+        console.error("Error calling OpenAI API:", error);
         res.status(500).json({ error: "AI error occurred" });
     }
 });
