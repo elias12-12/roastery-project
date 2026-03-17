@@ -37,6 +37,64 @@ export class ProductsRepository {
         }
     }
 
+    /**
+     * Search products with optional filters.
+     * @param {Object} params
+     * @param {string} [params.query] - Matches product_name/description (ILIKE)
+     * @param {number} [params.maxPrice]
+     * @param {number} [params.minPrice]
+     * @param {string} [params.productType]
+     * @param {string} [params.status]
+     * @param {number} [params.limit=10]
+     */
+    async search({ query, maxPrice, minPrice, productType, status, limit = 10 } = {}) {
+        try {
+            const where = [];
+            const values = [];
+
+            if (query && String(query).trim()) {
+                values.push(`%${String(query).trim()}%`);
+                where.push(`(product_name ILIKE $${values.length} OR description ILIKE $${values.length})`);
+            }
+
+            if (maxPrice != null && maxPrice !== '' && !Number.isNaN(Number(maxPrice))) {
+                values.push(Number(maxPrice));
+                where.push(`unit_price <= $${values.length}`);
+            }
+
+            if (minPrice != null && minPrice !== '' && !Number.isNaN(Number(minPrice))) {
+                values.push(Number(minPrice));
+                where.push(`unit_price >= $${values.length}`);
+            }
+
+            if (productType && String(productType).trim()) {
+                values.push(String(productType).trim());
+                where.push(`product_type = $${values.length}`);
+            }
+
+            if (status && String(status).trim()) {
+                values.push(String(status).trim());
+                where.push(`status = $${values.length}`);
+            }
+
+            const safeLimit = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 25);
+            values.push(safeLimit);
+
+            const sql = `
+                SELECT * 
+                FROM products
+                ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
+                ORDER BY product_id DESC
+                LIMIT $${values.length};
+            `;
+
+            const { rows } = await pool.query(sql, values);
+            return rows.map(r => new Products(r));
+        } catch (error) {
+            throw new Error(`Failed to search products: ${error.message}`);
+        }
+    }
+
     /** Find a product by its ID, or return null */
     async findById(product_id) {
         try {

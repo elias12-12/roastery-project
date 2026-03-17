@@ -126,27 +126,120 @@
   </div>
 </div>
 </div>
-<script>
-  async function sendMessage() {
-
-    const message = document.getElementById("message").value;
-
-    if (!message) return;
-
-    const res = await fetch("/api/chatbot", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ message })
-    });
-    const data = await res.json();
-    document.getElementById("response").innerText = data.reply || "No response from chatbot.";
-  }
-</script>
-<h2>ROASTERY AI ASSISTANT</h2>
-<div id="chatbox">
-  <input id="message" placeholder="ASK ANYTHING" />
-  <button onclick="sendMessage()">Send </button>
-  <div id="response">
+<div class="card mt-4 shadow-sm border-0">
+  <div class="card-header bg-dark text-white d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-robot"></i>
+      <span class="fw-semibold">Roastery AI Assistant</span>
+    </div>
+    <button id="chatClearBtn" type="button" class="btn btn-sm btn-outline-light">Clear</button>
   </div>
+
+  <div class="card-body">
+    <div id="chatMessages" class="border rounded p-3 mb-3" style="height: 280px; overflow:auto; background:#fbfbfb;"></div>
+
+    <div class="input-group">
+      <textarea id="chatInput" class="form-control" rows="2" placeholder="Ask about products, availability, pricing… (Press Enter to send, Shift+Enter for new line)"></textarea>
+      <button id="chatSendBtn" class="btn btn-primary" type="button">
+        <i class="bi bi-send"></i>
+      </button>
+    </div>
+    <div class="d-flex justify-content-between mt-2">
+      <small id="chatStatus" class="text-muted">Connected.</small>
+      <small class="text-muted">Demo assistant: verify details in the catalog.</small>
+    </div>
+  </div>
+</div>
+
+<script>
+  const chatMessagesEl = document.getElementById("chatMessages");
+  const chatInputEl = document.getElementById("chatInput");
+  const chatSendBtn = document.getElementById("chatSendBtn");
+  const chatClearBtn = document.getElementById("chatClearBtn");
+  const chatStatusEl = document.getElementById("chatStatus");
+
+  let chatHistory = [];
+  let isSending = false;
+
+  function escapeHtml(str) {
+    return String(str)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function appendMessage(role, content) {
+    chatHistory.push({ role, content });
+    const isUser = role === "user";
+
+    const wrapper = document.createElement("div");
+    wrapper.className = `d-flex mb-2 ${isUser ? "justify-content-end" : "justify-content-start"}`;
+
+    const bubble = document.createElement("div");
+    bubble.className = `px-3 py-2 rounded ${isUser ? "bg-primary text-white" : "bg-light border"}`;
+    bubble.style.maxWidth = "80%";
+    bubble.innerHTML = `<div style="white-space:pre-wrap;">${escapeHtml(content)}</div>`;
+
+    wrapper.appendChild(bubble);
+    chatMessagesEl.appendChild(wrapper);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+
+  function setSending(next) {
+    isSending = next;
+    chatSendBtn.disabled = next;
+    chatInputEl.disabled = next;
+    chatStatusEl.textContent = next ? "Assistant is typing..." : "Connected.";
+  }
+
+  async function sendMessage() {
+    const message = chatInputEl.value.trim();
+    if (!message || isSending) return;
+
+    appendMessage("user", message);
+    chatInputEl.value = "";
+    setSending(true);
+
+    try {
+      const res = await fetch("/api/chatbot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          history: chatHistory.slice(-8)
+        })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      const reply = data.reply || data.error || "No response from chatbot.";
+
+      appendMessage("assistant", reply);
+    } catch (e) {
+      appendMessage("assistant", "Network error. Please try again.");
+    } finally {
+      setSending(false);
+      chatInputEl.focus();
+    }
+  }
+
+  chatSendBtn.addEventListener("click", sendMessage);
+  chatClearBtn.addEventListener("click", () => {
+    chatHistory = [];
+    chatMessagesEl.innerHTML = "";
+    chatStatusEl.textContent = "Cleared.";
+    setTimeout(() => { if (!isSending) chatStatusEl.textContent = "Connected."; }, 800);
+    chatInputEl.focus();
+  });
+
+  chatInputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Initial greeting
+  appendMessage("assistant", "Hi! Ask me about products (availability, prices, recommendations). If you're logged in, I can also summarize your recent orders.");
+</script>

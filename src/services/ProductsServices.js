@@ -45,6 +45,19 @@ export class ProductsServices {
         }
     }
 
+    /**
+     * Search products with optional filters.
+     * @param {Object} params
+     * @returns {Promise<Products[]>}
+     */
+    async searchProducts(params = {}) {
+        try {
+            return await this.productsRepository.search(params);
+        } catch (error) {
+            throw new Error(`Failed to search products: ${error.message}`);
+        }
+    }
+
     /** 
      * Get a product by ID or throw on invalid id 
      * @param {number} product_id - Product ID
