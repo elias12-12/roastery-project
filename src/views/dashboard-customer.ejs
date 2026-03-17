@@ -126,21 +126,48 @@
   </div>
 </div>
 </div>
-<div class="card mt-4 shadow-sm border-0">
-  <div class="card-header bg-dark text-white d-flex align-items-center justify-content-between">
-    <div class="d-flex align-items-center gap-2">
+<style>
+  .ai-chat-fab {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 1080; /* above most UI */
+    border-radius: 999px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  }
+</style>
+
+<!-- Floating chat button (always visible, no scrolling needed) -->
+<button
+  type="button"
+  class="btn btn-dark ai-chat-fab px-3 py-2 d-flex align-items-center gap-2"
+  data-bs-toggle="offcanvas"
+  data-bs-target="#aiChatOffcanvas"
+  aria-controls="aiChatOffcanvas"
+>
+  <i class="bi bi-robot"></i>
+  <span class="d-none d-sm-inline">AI Chat</span>
+</button>
+
+<!-- Offcanvas chat panel -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="aiChatOffcanvas" aria-labelledby="aiChatOffcanvasLabel" style="width: min(420px, 95vw);">
+  <div class="offcanvas-header bg-dark text-white">
+    <h5 class="offcanvas-title d-flex align-items-center gap-2" id="aiChatOffcanvasLabel">
       <i class="bi bi-robot"></i>
-      <span class="fw-semibold">Roastery AI Assistant</span>
+      Roastery AI Assistant
+    </h5>
+    <div class="d-flex align-items-center gap-2">
+      <button id="chatClearBtn" type="button" class="btn btn-sm btn-outline-light">Clear</button>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-    <button id="chatClearBtn" type="button" class="btn btn-sm btn-outline-light">Clear</button>
   </div>
 
-  <div class="card-body">
-    <div id="chatMessages" class="border rounded p-3 mb-3" style="height: 280px; overflow:auto; background:#fbfbfb;"></div>
+  <div class="offcanvas-body d-flex flex-column">
+    <div id="chatMessages" class="border rounded p-3 mb-3 flex-grow-1" style="overflow:auto; background:#fbfbfb;"></div>
 
     <div class="input-group">
-      <textarea id="chatInput" class="form-control" rows="2" placeholder="Ask about products, availability, pricing… (Press Enter to send, Shift+Enter for new line)"></textarea>
-      <button id="chatSendBtn" class="btn btn-primary" type="button">
+      <textarea id="chatInput" class="form-control" rows="2" placeholder="Ask about products, availability, pricing… (Enter to send, Shift+Enter for new line)"></textarea>
+      <button id="chatSendBtn" class="btn btn-primary" type="button" title="Send">
         <i class="bi bi-send"></i>
       </button>
     </div>
@@ -157,9 +184,11 @@
   const chatSendBtn = document.getElementById("chatSendBtn");
   const chatClearBtn = document.getElementById("chatClearBtn");
   const chatStatusEl = document.getElementById("chatStatus");
+  const chatOffcanvasEl = document.getElementById("aiChatOffcanvas");
 
   let chatHistory = [];
   let isSending = false;
+  let didGreet = false;
 
   function escapeHtml(str) {
     return String(str)
@@ -240,6 +269,15 @@
     }
   });
 
-  // Initial greeting
-  appendMessage("assistant", "Hi! Ask me about products (availability, prices, recommendations). If you're logged in, I can also summarize your recent orders.");
+  function ensureGreeting() {
+    if (didGreet) return;
+    didGreet = true;
+    appendMessage("assistant", "Hi! Ask me about products (availability, prices, recommendations). If you're logged in, I can also summarize your recent orders.");
+  }
+
+  // Greet and focus when the panel opens
+  chatOffcanvasEl.addEventListener("shown.bs.offcanvas", () => {
+    ensureGreeting();
+    chatInputEl.focus();
+  });
 </script>
